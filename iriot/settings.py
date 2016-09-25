@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
     'accounts',
-    'master'
+    'master',
+    'rooms'
 ]
 
 MIDDLEWARE_CLASSES = [

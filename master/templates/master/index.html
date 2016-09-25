@@ -5,6 +5,48 @@
 
 <h2>Hello {{ user.first_name }}. Welcome to <i>i</i>Riot!</h2>
 
+<ul id="tabs" class="nav nav-tabs" data-tabs="tabs">
+  {% for room in user.room_set.all %}
+  <li><a href="#{{room.id}}" data-toggle="tab">{{room.name}}</a></li>
+  {% endfor %}
+  <li><a href="#add" data-toggle="tab"><i class="glyphicon glyphicon-plus"></i></a></li>
+</ul>
+<div id="my-tab-content" class="tab-content">
+  {% for room in user.room_set.all %}
+  <div class="tab-pane" id="{{room.id}}">
+    <br/>
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <h3 class="panel-title">Room Presets</h3>
+      </div>
+      <div class="panel-body">
+        No presets.
+      </div>
+    </div>
+    <div class="well">
+      <a class="btn btn-default" href="#">Edit Room</a>
+      <a class="btn btn-danger" href="{% url 'rooms:remove_room' room.id %}">Remove Room</a>
+    </div>
+  </div>
+  {% endfor %}
+  <div class="tab-pane" id="add">
+    <h3>Add a room</h3>
+    <form method="post" action="{% url 'rooms:room' %}">
+    {% csrf_token %}
+
+    {% for field in room_form.visible_fields %}
+    <div class="form-group">
+      {{ field.errors }}
+      <label>{{ field.label }}</label>
+      {{ field }}
+    </div>
+    {% endfor %}
+    <br/>
+  <button type="submit" class="btn btn-default">Add Room</button>
+</form>
+  </div>
+</div>
+
 
 {% else %}
 <div class="jumbotron">
@@ -18,4 +60,10 @@
 <h3>Security is Key.</h3>
 <p>Amazon provides our project with a robust, secure Internet of Things backbone. Loaded with air-tight features, you should never have to worry about unwanted intruders in your network.</p>
 {% endif %}
+
+<script type="text/javascript">
+    jQuery(document).ready(function ($) {
+        $('#tabs').tab();
+    });
+</script>
 {% endblock %}
