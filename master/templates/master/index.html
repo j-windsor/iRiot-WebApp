@@ -1,0 +1,21 @@
+{% extends "master/base.html" %}
+{% block body_block %}
+{% if user.is_authenticated %}
+
+
+<h2>Hello {{ user.first_name }}. Welcome to <i>i</i>Riot!</h2>
+
+
+{% else %}
+<div class="jumbotron">
+  <h1>Welcome to <i>i</i>Riot!</h1>
+  <p>The internet of things. simplified.</p>
+  <p><a class="btn btn-primary btn-lg" href="{% url 'accounts:register' %}" role="button">Register Now</a></p>
+</div>
+<p class="lead">In traditional IoT systems, every device communicates via a WiFi connection, placing a significant load on your local network and creating an unnecessarily large cyber attack surface. Our solution is different.</p>
+<h3>Old Dogs, New Tricks.</h3>
+<p>Why should creating a “smart home” involve buying brand-new, “smart” devices? Many TVs, light switches, fans, AC units, and more already contain IR sensors. By placing one of our hubs on the ceiling of every room in your home, you will be able to control all of these devices from one, simple web app.</p>
+<h3>Security is Key.</h3>
+<p>Amazon provides our project with a robust, secure Internet of Things backbone. Loaded with air-tight features, you should never have to worry about unwanted intruders in your network.</p>
+{% endif %}
+{% endblock %}
