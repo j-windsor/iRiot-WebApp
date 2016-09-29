@@ -38,5 +38,5 @@ def remove_room(request, room_id):
     if Room.objects.filter(owner=request.user):
         Room.objects.get(id=room_id).delete()
     else:
-        messages.warning(request, "Your report was not deleted.")
+        messages.warning(request, "Your room was not removed.")
     return HttpResponseRedirect('/')

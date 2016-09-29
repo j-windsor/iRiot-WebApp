@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'accounts',
     'master',
-    'rooms'
+    'rooms',
+    'hubs',
 ]
 
 MIDDLEWARE_CLASSES = [

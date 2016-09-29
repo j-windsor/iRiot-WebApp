@@ -1,0 +1,94 @@
+{% extends "master/base.html" %}
+{% block body_block %}
+<div class="panel panel-default">
+<div class="panel-heading">
+  My Hubs
+<a class="btn btn-default pull-right btn-sm" data-toggle="modal" data-target="#newModal">Add Hub</a>
+<div class="clearfix"></div>
+</div>
+<table class="table">
+  <tr>
+    <th>Alias</th>
+    <th>Serial Number</th>
+    <th>Room</th>
+    <th>Actions</th>
+  </tr>
+  {% for hub in user.hub_set.all %}
+  <tr>
+    <td> {{ hub.alias }} </td>
+    <td>{{ hub.serial_number }}</td>
+    <td>
+      <form id="move{{hub.id}}" method="post" action="{% url 'hubs:change_room' %}">
+      {% csrf_token %}
+        <select name="room_val" onChange = "$('#move{{hub.id}}').submit()">
+          <option value="-1"></option>
+          {% for room in user.room_set.all %}
+          <option value="{{room.id}}" {%if room.name == hub.room.name %} selected="selected" {% endif %}>{{ room.name }}</option>
+          {% endfor %}
+            <input type="hidden" name="hub_id" value="{{ hub.id }}">
+        </select>
+        </form>
+    </td>
+    <td>
+      <a data-toggle="modal" data-target="#modal{{hub.id}}">Edit</a>
+      <a href="{% url "hubs:remove_hub" hub.id %}">Delete</a>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+</div>
+
+{% for hub in user.hub_set.all %}
+<div class="modal fade" id="modal{{hub.id}}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Edit Name</h4>
+      </div>
+      <form method="post" action="{% url 'hubs:change_name' %}">
+      {% csrf_token %}
+      <div class="modal-body">
+        <input type="text" class="form-control" name="q" placeholder="{{hub.alias}}"/>
+        <input type="hidden" name="hub_id" value="{{ hub.id }}">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-primary">Save changes</button>
+      </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+<div class="modal fade" id="newModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">New Hub</h4>
+      </div>
+      <form method="post" action="{% url 'hubs:manage' %}">
+      <div class="modal-body">
+        {% csrf_token %}
+
+        {% for field in hub_form.visible_fields %}
+        <div class="form-group">
+          {{ field.errors }}
+          <label>{{ field.label }}</label>
+          {{ field }}
+        </div>
+        {% endfor %}
+        <br/>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-primary">Add Hub</button>
+      </div>
+    </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
