@@ -35,8 +35,18 @@ def room(request):
 
 @login_required
 def remove_room(request, room_id):
-    if Room.objects.filter(owner=request.user):
-        Room.objects.get(id=room_id).delete()
+    room = Room.objects.get(id=room_id)
+    if room.owner == request.user:
+        room.delete()
     else:
         messages.warning(request, "Your room was not removed.")
+    return HttpResponseRedirect('/')
+
+def edit_room_name(request):
+    item = Room.objects.get(id=request.POST["room_id"])
+    if item.owner == request.user:
+        item.name = request.POST['q']
+        item.save()
+    else:
+        messages.warning(request, 'Name not changed!')
     return HttpResponseRedirect('/')

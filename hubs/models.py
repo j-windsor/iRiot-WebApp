@@ -9,4 +9,4 @@ class Hub(models.Model):
     alias = models.CharField(max_length=30)
     owner = models.ForeignKey(User)
     room = models.ForeignKey(Room, blank=True, null=True)
-    serial_number = models.CharField(max_length=30)
+    serial_number = models.CharField(max_length=30, unique=True)
