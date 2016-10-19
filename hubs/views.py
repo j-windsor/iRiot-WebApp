@@ -5,12 +5,15 @@ from django.contrib import messages
 from .models import Hub
 from rooms.models import Room
 from .forms import HubForm
+import boto3
+import botocore
 
 # Create your views here.
 @login_required
 def manage(request):
     # if this is a POST request we need to process the form data
     if request.method == 'POST':
+        client = boto3.client('iot')
         # create a form instance and populate it with data from the request:
         f = HubForm(request.POST)
         # check whether it's valid:
@@ -18,10 +21,28 @@ def manage(request):
             # Save the form data to the database.
             # But dont yet commit, we still have some data to add.
             hub = f.save(commit=False)
+            isTaken = True
+            try:
+                isTaken = client.describe_thing(thingName=hub.serial_number)['attributes']['taken'] == 'true'
+            except botocore.exceptions.ClientError:
+                messages.warning(request, 'There is no device with that serial number!')
+                return render(request, 'hubs/manage.html', {'hub_form': f})
+            except:
+                messages.warning(request, 'Error communicating with device!')
+                return render(request, 'hubs/manage.html', {'hub_form': f})
+            if isTaken:
+                messages.warning(request, 'Hub Already Registered!')
+                return render(request, 'hubs/manage.html', {'hub_form': f})
+
             hub.owner = request.user
-            #TODO: Check to see if hub is in AWS and not taken
+
+            client.update_thing(thingName=hub.serial_number,attributePayload={'attributes': {'taken': 'true'},'merge': True})
+
             # NOW we can save
             hub.save();
+
+
+
 
             # redirect to a new URL:
             return HttpResponseRedirect('/hubs/manage')
@@ -37,8 +58,16 @@ def manage(request):
 
 @login_required
 def remove_hub(request, hub_id):
-    if Hub.objects.filter(owner=request.user):
-        Hub.objects.get(id=hub_id).delete()
+    client = boto3.client('iot')
+    hub = Hub.objects.get(id=hub_id)
+    if hub.owner == request.user:
+        try:
+            client.update_thing(thingName=hub.serial_number,attributePayload={'attributes': {'taken': 'false'},'merge': True})
+        except:
+            messages.warning(request, "Hub could not be removed. Communication with device failed.")
+            return HttpResponseRedirect('/hubs/manage')
+
+        hub.delete()
     else:
         messages.warning(request, "Your hub was not deleted.")
     return HttpResponseRedirect('/hubs/manage')

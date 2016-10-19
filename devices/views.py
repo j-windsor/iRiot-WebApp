@@ -4,6 +4,8 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib import messages
 from .models import Device, Function
 from rooms.models import Room
+import boto3
+import json
 
 # Create your views here.
 @login_required
@@ -72,8 +74,14 @@ def remove_device(request, device_id, room_id):
     return HttpResponseRedirect('/devices/'+str(room_id)+'/manage')
 
 def send_function(request, function_id):
+    client = boto3.client('iot-data')
     func = Function.objects.get(id=function_id)
+    payload = {"state":{"desired":{"prontohex": func.prontohex}}}
     if func.device.room.owner != request.user:
         HttpResponse("f")
-    #TODO: Send code to AWS
+    try:
+        for hub in func.device.room.hub_set.all():
+            client.update_thing_shadow(thingName=hub.serial_number,payload=json.dumps(payload))
+    except:
+        return HttpResponse("f")
     return HttpResponse("t")
