@@ -23,8 +23,27 @@
         No presets.
       </div>
     </div>
+    <div class="row">
+      {% for device in room.device_set.all %}
+      <div class="col-md-4">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">{{ device.name }}</h3>
+          </div>
+          <div class="panel-body">
+            <div class="btn-group-vertical btn-block" role="group">
+              {% for function in device.function_set.all %}
+              <a class="btn btn-default" id="function{{function.id}}" onclick="send_function('{{function.id}}','#function{{function.id}}')">{{function.function}}</a>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
     <div class="well">
       <a class="btn btn-default" href="{% url 'hubs:manage' %}">Edit Room Hubs</a>
+      <a class="btn btn-default" href="{% url 'devices:manage' room.id %}">Edit Room Devices</a>
       <a class="btn btn-default" href="#">Edit Room</a>
       <a class="btn btn-danger" href="{% url 'rooms:remove_room' room.id %}">Remove Room</a>
     </div>
@@ -62,9 +81,31 @@
 <p>Amazon provides our project with a robust, secure Internet of Things backbone. Loaded with air-tight features, you should never have to worry about unwanted intruders in your network.</p>
 {% endif %}
 
+
+{% endblock %}
+{% block head_block %}
 <script type="text/javascript">
-    jQuery(document).ready(function ($) {
+    $(document).ready(function ($) {
         $('#tabs').tab();
     });
+    function send_function(function_id, button_id){
+      var url = "devices/"+function_id+"/send_function"
+      $.ajax({
+        url: url,
+        cache: false,
+        success: function(html){
+          if (html == "t") {
+            $(button_id).css("background-color", "green").animate({
+              backgroundColor: "white",
+            }, 1000 );
+          } else {
+            $(button_id).css("background-color", "red").animate({
+              backgroundColor: "white",
+            }, 1000 );
+          }
+        }
+      });
+    }
 </script>
+<script src="https://code.jquery.com/color/jquery.color-2.1.2.min.js"></script>
 {% endblock %}

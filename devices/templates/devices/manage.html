@@ -1,0 +1,121 @@
+{% extends "master/base.html" %}
+{% block body_block %}
+<div class="panel panel-default">
+<div class="panel-heading">
+  Devices for {{roomName}}
+<a class="btn btn-default pull-right btn-sm" data-toggle="modal" data-target="#newModal">Add Device</a>
+<div class="clearfix"></div>
+</div>
+<table class="table">
+  <tr>
+    <th>Name</th>
+    <th>Functions</th>
+    <th>Actions</th>
+  </tr>
+  {% for device in roomDevices %}
+  <tr>
+    <td> {{ device.name }} </td>
+    <td>
+      <button type="button" class="btn btn-link" data-toggle="collapse" data-target="#view{{device.id}}">View functions</button>
+      <div id="view{{device.id}}" class="collapse">
+        <table class="table">
+          {% for function in device.function_set.all %}
+          <tr>
+            <td>{{function.function}}</td>
+            <td><code>{{function.prontohex}}</code></td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+    </td>
+    <td>
+      <a data-toggle="modal" data-target="#modal{{device.id}}">Edit</a>
+      <a href="{% url "devices:remove_device" roomID device.id %}">Delete</a>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+</div>
+
+{% for device in roomDevices %}
+<div class="modal fade" id="modal{{device.id}}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Edit Device</h4>
+      </div>
+      <form method="post" action="{% url 'devices:update' %}">
+      {% csrf_token %}
+      <div class="modal-body">
+        <input type="text" class="form-control" name="q" value="{{device.name}}"/>
+        <input type="hidden" name="device_id" value="{{ device.id }}">
+        <input type="hidden" name="room_id" value="{{ roomID }}">
+        <br />
+        <table class="table" id="t{{device.id}}">
+          <tr>
+            <th>Name</th>
+            <th>ProntoHex code</th>
+          </tr>
+          {% for function in device.function_set.all %}
+          <tr>
+            <td><input type="text" class="form-control" name="f{{function.id}}" value="{{function.function}}"/></td>
+            <td><input type="text" class="form-control" name="p{{function.id}}" value="{{function.prontohex}}"/></td>
+          </tr>
+          {% endfor %}
+        </table>
+      <br />
+      <button type="button" class="btn btn-default btn-small" onclick="addField('#t{{device.id}}')">Add Function</button>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-primary">Save changes</button>
+      </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+<div class="modal fade" id="newModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">New Device</h4>
+      </div>
+      <form method="post" action="{% url 'devices:new' %}">
+      {% csrf_token %}
+      <div class="modal-body">
+        <input type="text" class="form-control" name="name" placeholder="Device Name"/>
+        <input type="hidden" name="room_id" value="{{ roomID }}">
+        <br />
+        <table class="table" id="tnew">
+          <tr>
+            <th>Name</th>
+            <th>ProntoHex code</th>
+          </tr>
+        </table>
+      <br />
+        <button type="button" class="btn btn-default btn-small" onclick="addField('#tnew')">Add Function</button>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-primary">Save changes</button>
+      </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+{% block head_block %}
+<script type="text/javascript">
+var c = 0;
+function addField(sel){
+  var text = "<tr><td><input type='text' class='form-control' name='nf"+c+"'/></td><td><input type='text' class='form-control' name='np"+c+"'/></td></tr>";
+  $(text).appendTo(sel);
+  c++;
+}
+</script>
+{% endblock %}
