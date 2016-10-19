@@ -13,7 +13,7 @@ import botocore
 def manage(request):
     # if this is a POST request we need to process the form data
     if request.method == 'POST':
-        client = boto3.client('iot')
+        client = boto3.client('iot', region_name='us-east-1')
         # create a form instance and populate it with data from the request:
         f = HubForm(request.POST)
         # check whether it's valid:
@@ -58,7 +58,7 @@ def manage(request):
 
 @login_required
 def remove_hub(request, hub_id):
-    client = boto3.client('iot')
+    client = boto3.client('iot', region_name='us-east-1')
     hub = Hub.objects.get(id=hub_id)
     if hub.owner == request.user:
         try:

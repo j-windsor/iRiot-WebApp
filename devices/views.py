@@ -74,7 +74,7 @@ def remove_device(request, device_id, room_id):
     return HttpResponseRedirect('/devices/'+str(room_id)+'/manage')
 
 def send_function(request, function_id):
-    client = boto3.client('iot-data')
+    client = boto3.client('iot-data', region_name='us-east-1')
     func = Function.objects.get(id=function_id)
     payload = {"state":{"desired":{"prontohex": func.prontohex}}}
     if func.device.room.owner != request.user:
