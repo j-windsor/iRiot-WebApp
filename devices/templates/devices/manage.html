@@ -2,8 +2,8 @@
 {% block body_block %}
 <div class="panel panel-default">
 <div class="panel-heading">
-  Devices for {{roomName}}
-<a class="btn btn-default pull-right btn-sm" data-toggle="modal" data-target="#newModal">Add Device</a>
+<h3 class="panel-title pull-left" style="padding-top: 7.5px;">Devices for {{roomName}}</h3>
+<a class="btn btn-default pull-right btn-sm" data-toggle="modal" data-target="#newModal"><i class="glyphicon glyphicon-plus"></i></a>
 <div class="clearfix"></div>
 </div>
 <table class="table">
@@ -61,6 +61,7 @@
           <tr>
             <td><input type="text" class="form-control" name="f{{function.id}}" value="{{function.function}}"/></td>
             <td><input type="text" class="form-control" name="p{{function.id}}" value="{{function.prontohex}}"/></td>
+            <td> </td>
           </tr>
           {% endfor %}
         </table>
@@ -113,9 +114,14 @@
 <script type="text/javascript">
 var c = 0;
 function addField(sel){
-  var text = "<tr><td><input type='text' class='form-control' name='nf"+c+"'/></td><td><input type='text' class='form-control' name='np"+c+"'/></td></tr>";
+  var text = "<tr id='new"+c+"'><td><input type='text' class='form-control' name='nf"+c+"'/></td><td><input type='text' class='form-control' name='np"+c+"'/></td><td><a class='btn btn-danger' onclick='removeField("+c+")''><i class='glyphicon glyphicon-remove'></i></a></td></tr>";
   $(text).appendTo(sel);
   c++;
+}
+function removeField(n){
+  var rowSel = "#new"+n;
+  var obj = $(rowSel);
+  obj.remove();
 }
 </script>
 {% endblock %}

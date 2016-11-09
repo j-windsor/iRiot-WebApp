@@ -22,5 +22,5 @@ urlpatterns = [
     url(r'^rooms/', include('rooms.urls', namespace="rooms")),
     url(r'^hubs/', include('hubs.urls', namespace="hubs")),
     url(r'^devices/', include('devices.urls', namespace="devices")),
-    url(r'^$', include('master.urls', namespace="master")),
+    url(r'^', include('master.urls', namespace="master")),
 ]

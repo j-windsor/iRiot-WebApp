@@ -14,15 +14,14 @@ def new(request):
     d.name = request.POST['name']
     d.room = Room.objects.get(id=request.POST['room_id'])
     d.save()
-
-    i = 0
-    while ("nf"+str(i)) in request.POST.keys():
-        f = Function()
-        f.function = request.POST["nf"+str(i)]
-        f.prontohex = request.POST["np"+str(i)]
-        f.device = d
-        f.save()
-        i += 1;
+    messages.warning(request, request.POST.keys())
+    for key in request.POST.keys():
+        if key[:2] == 'nf':
+            f = Function()
+            f.function = request.POST["nf"+key[2:]]
+            f.prontohex = request.POST["np"+key[2:]]
+            f.device = d
+            f.save()
 
     return HttpResponseRedirect('/devices/'+request.POST['room_id']+'/manage')
 
@@ -35,16 +34,6 @@ def update(request):
     dev.name = request.POST['q']
     dev.save()
 
-    #add any new fields
-    i = 0
-    while ("nf"+str(i)) in request.POST.keys():
-        f = Function()
-        f.function = request.POST["nf"+str(i)]
-        f.prontohex = request.POST["np"+str(i)]
-        f.device = dev
-        f.save()
-        i += 1;
-
     #modify existing fields
     for key in request.POST.keys():
         if key[0] == 'f':
@@ -52,6 +41,12 @@ def update(request):
             func.function = request.POST[str("f"+key[1:])]
             func.prontohex = request.POST[str("p"+key[1:])]
             func.save()
+        if key[:2] == 'nf':
+            f = Function()
+            f.function = request.POST["nf"+key[2:]]
+            f.prontohex = request.POST["np"+key[2:]]
+            f.device = dev
+            f.save()
 
     return HttpResponseRedirect('/devices/'+request.POST['room_id']+'/manage')
 

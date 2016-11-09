@@ -2,8 +2,8 @@
 {% block body_block %}
 <div class="panel panel-default">
 <div class="panel-heading">
-  My Hubs
-<a class="btn btn-default pull-right btn-sm" data-toggle="modal" data-target="#newModal">Add Hub</a>
+  <h3 class="panel-title pull-left" style="padding-top: 7.5px;">My Hubs</h3>
+  <a class="btn btn-default pull-right btn-sm" data-toggle="modal" data-target="#newModal"><i class="glyphicon glyphicon-plus"></i></a>
 <div class="clearfix"></div>
 </div>
 <table class="table">
@@ -49,7 +49,7 @@
       <form method="post" action="{% url 'hubs:change_name' %}">
       {% csrf_token %}
       <div class="modal-body">
-        <input type="text" class="form-control" name="q" placeholder="{{hub.alias}}"/>
+        <input type="text" class="form-control" name="q" value="{{hub.alias}}"/>
         <input type="hidden" name="hub_id" value="{{ hub.id }}">
       </div>
       <div class="modal-footer">

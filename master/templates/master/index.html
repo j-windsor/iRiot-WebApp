@@ -15,6 +15,7 @@
   {% for room in user.room_set.all %}
   <div class="tab-pane" id="{{room.id}}">
     <br/>
+    <!--
     <div class="panel panel-primary">
       <div class="panel-heading">
         <h3 class="panel-title">Room Presets</h3>
@@ -23,6 +24,7 @@
         No presets.
       </div>
     </div>
+    -->
     <div class="row">
       {% for device in room.device_set.all %}
       <div class="col-md-4">
@@ -41,11 +43,19 @@
       </div>
       {% endfor %}
     </div>
-    <div class="well">
-      <a class="btn btn-default" href="{% url 'hubs:manage' %}">Edit Room Hubs</a>
-      <a class="btn btn-default" href="{% url 'devices:manage' room.id %}">Edit Room Devices</a>
-      <a class="btn btn-default" data-toggle="modal" data-target="#modal{{room.id}}">Edit Name</a>
-      <a class="btn btn-danger" href="{% url 'rooms:remove_room' room.id %}">Remove Room</a>
+    <div class="btn-group" role="group">
+      <div class="btn-group" role="group">
+    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      Edit
+      <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu">
+      <li><a href="{% url 'hubs:manage' %}">Edit Room Hubs</a></li>
+      <li><a href="{% url 'devices:manage' room.id %}">Edit Room Devices</a></li>
+      <li><a data-toggle="modal" data-target="#modal{{room.id}}">Edit Name</a></li>
+    </ul>
+  </div>
+      <a class="btn btn-danger" href="{% url 'rooms:remove_room' room.id %}">Remove Room <i class="glyphicon glyphicon-trash"></i></a>
     </div>
   </div>
   {% endfor %}
