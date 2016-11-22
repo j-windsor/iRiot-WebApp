@@ -9,6 +9,7 @@
 <table class="table">
   <tr>
     <th>Alias</th>
+    <th>Status</th>
     <th>Serial Number</th>
     <th>Room</th>
     <th>Actions</th>
@@ -16,6 +17,13 @@
   {% for hub in user.hub_set.all %}
   <tr>
     <td> {{ hub.alias }} </td>
+    <td>
+      {% if hub.is_updated %}
+      <span class="label label-success">Updated</span>
+      {% else %}
+      <span class="label label-danger">Out Of Date</span>
+      {% endif %}
+    </td>
     <td>{{ hub.serial_number }}</td>
     <td>
       <form id="move{{hub.id}}" method="post" action="{% url 'hubs:change_room' %}">
