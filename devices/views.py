@@ -6,6 +6,7 @@ from .models import Device, Function
 from rooms.models import Room
 import boto3
 import json
+import re
 
 # Create your views here.
 @login_required
@@ -14,14 +15,9 @@ def new(request):
     d.name = request.POST['name']
     d.room = Room.objects.get(id=request.POST['room_id'])
     d.save()
-    messages.warning(request, request.POST.keys())
     for key in request.POST.keys():
         if key[:2] == 'nf':
-            f = Function()
-            f.function = request.POST["nf"+key[2:]]
-            f.prontohex = request.POST["np"+key[2:]]
-            f.device = d
-            f.save()
+            make_function(request, request.POST["nf"+key[2:]],request.POST["np"+key[2:]],-1,d)
 
     return HttpResponseRedirect('/devices/'+request.POST['room_id']+'/manage')
 
@@ -29,7 +25,7 @@ def new(request):
 def update(request):
     dev = Device.objects.get(id=request.POST['device_id'])
     if dev.room.owner != request.user:
-        messages.warning(request, "You can't update a device you dont own!.")
+        messages.warning(request, "You can't update a device you dont own!")
         return HttpResponseRedirect('/devices/'+request.POST['room_id']+'/manage')
     dev.name = request.POST['q']
     dev.save()
@@ -37,18 +33,36 @@ def update(request):
     #modify existing fields
     for key in request.POST.keys():
         if key[0] == 'f':
-            func = Function.objects.get(id=key[1:])
-            func.function = request.POST[str("f"+key[1:])]
-            func.prontohex = request.POST[str("p"+key[1:])]
-            func.save()
+            make_function(request, request.POST["f"+key[1:]],request.POST["p"+key[1:]],key[1:])
         if key[:2] == 'nf':
-            f = Function()
-            f.function = request.POST["nf"+key[2:]]
-            f.prontohex = request.POST["np"+key[2:]]
-            f.device = dev
-            f.save()
+            make_function(request, request.POST["nf"+key[2:]],request.POST["np"+key[2:]],-1,dev)
 
     return HttpResponseRedirect('/devices/'+request.POST['room_id']+'/manage')
+
+
+def make_function(request, name, code, existing_id, d=None):
+    f = Function()
+    if existing_id != -1:
+        f = Function.objects.get(id=existing_id)
+    f.function = name
+    hexstring = code.replace("0x","").replace(" ","").upper()
+    if re.match("^[0-9A-F]+$", hexstring) and len(hexstring) % 4 == 0:
+        hexarray = [hexstring[i:i+4] for i in range(0, len(hexstring), 4)]
+        f.prontohex = " ".join(hexarray)
+        sendhexstring = ""
+        for s in hexarray:
+            sendhexstring += str(int(s, 16)) + ", "
+        f.sendhex = sendhexstring[:-2]
+        if existing_id == -1:
+            f.device = d
+        f.save()
+    else:
+        messages.warning(request, "ProntoHex code invalid for " + name)
+        if existing_id == -1:
+            for code in d.function_set.all():
+                code.delete()
+            d.delete()
+        return HttpResponseRedirect('/devices/'+request.POST['room_id']+'/manage')
 
 
 @login_required
@@ -65,13 +79,16 @@ def remove_device(request, device_id, room_id):
     if dev.room.owner != request.user:
         messages.warning(request, "Your device was not removed.")
         return HttpResponseRedirect('/devices/'+str(room_id)+'/manage')
+    #delete all prontohex codes associated with device
+    for code in dev.function_set.all():
+        code.delete()
     dev.delete()
     return HttpResponseRedirect('/devices/'+str(room_id)+'/manage')
 
 def send_function(request, function_id):
     client = boto3.client('iot-data', region_name='us-east-1')
     func = Function.objects.get(id=function_id)
-    payload = {"state":{"desired":{"prontohex": func.prontohex}}}
+    payload = {"state":{"desired":{"prontohex": func.sendhex}}}
     if func.device.room.owner != request.user:
         HttpResponse("f")
     try:

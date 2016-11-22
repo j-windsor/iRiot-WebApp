@@ -47,7 +47,7 @@ def manage(request):
             # redirect to a new URL:
             return HttpResponseRedirect('/hubs/manage')
         else:
-            messages.warning(request, 'Hub Not Added! Already registered to you!')
+            messages.warning(request, "There were some errors in your request. Try Again!")
             return render(request, 'hubs/manage.html', {'hub_form': f})
     # if a GET (or any other method) we'll create a blank form
     else:

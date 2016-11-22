@@ -11,5 +11,6 @@ class Device(models.Model):
 
 class Function(models.Model):
     function = models.CharField(max_length=30)
-    prontohex = models.CharField(max_length=800)
+    prontohex = models.CharField(max_length=2000)
+    sendhex = models.CharField(max_length=2000)
     device = models.ForeignKey(Device)

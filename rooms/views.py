@@ -4,6 +4,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib import messages
 from .forms import RoomForm
 from .models import Room
+from devices.models import Device
 
 # Create your views here.
 @login_required
@@ -37,6 +38,8 @@ def room(request):
 def remove_room(request, room_id):
     room = Room.objects.get(id=room_id)
     if room.owner == request.user:
+        for device in room.device_set.all():
+            device.delete()
         room.delete()
     else:
         messages.warning(request, "Your room was not removed.")
