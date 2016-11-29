@@ -7,6 +7,7 @@ from rooms.models import Room
 import boto3
 import json
 import re
+import random
 
 # Create your views here.
 @login_required
@@ -39,7 +40,7 @@ def update(request):
 
     return HttpResponseRedirect('/devices/'+request.POST['room_id']+'/manage')
 
-
+@login_required
 def make_function(request, name, code, existing_id, d=None):
     f = Function()
     if existing_id != -1:
@@ -85,10 +86,11 @@ def remove_device(request, device_id, room_id):
     dev.delete()
     return HttpResponseRedirect('/devices/'+str(room_id)+'/manage')
 
+@login_required
 def send_function(request, function_id):
     client = boto3.client('iot-data', region_name='us-east-1')
     func = Function.objects.get(id=function_id)
-    payload = {"state":{"desired":{"prontohex": func.sendhex}}}
+    payload = {"state":{"desired":{"prontohex": func.sendhex, "random":random.random()}}}
     if func.device.room.owner != request.user:
         HttpResponse("f")
     try:
