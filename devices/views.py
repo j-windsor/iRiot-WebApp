@@ -90,7 +90,7 @@ def remove_device(request, device_id, room_id):
 def send_function(request, function_id):
     client = boto3.client('iot-data', region_name='us-east-1')
     func = Function.objects.get(id=function_id)
-    payload = {"state":{"desired":{"prontohex": func.sendhex+"d"+str(random.random())}}}
+    payload = {"state":{"desired":{"prontohex": str(random.random())+"d"+func.sendhex}}}
     if func.device.room.owner != request.user:
         HttpResponse("f")
     try:
