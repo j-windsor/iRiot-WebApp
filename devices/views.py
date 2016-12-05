@@ -52,7 +52,7 @@ def make_function(request, name, code, existing_id, d=None):
         f.prontohex = " ".join(hexarray)
         sendhexstring = ""
         for s in hexarray:
-            sendhexstring += str(int(s, 16)) + ", "
+            sendhexstring += str(int(s, 16)) + ","
         f.sendhex = sendhexstring[:-2]
         if existing_id == -1:
             f.device = d
