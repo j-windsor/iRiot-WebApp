@@ -7,7 +7,7 @@ from rooms.models import Room
 import boto3
 import json
 import re
-import random import randint
+from random import randint
 
 # Create your views here.
 @login_required
