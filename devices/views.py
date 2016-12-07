@@ -46,14 +46,14 @@ def make_function(request, name, code, existing_id, d=None):
     if existing_id != -1:
         f = Function.objects.get(id=existing_id)
     f.function = name
-    hexstring = code.replace("0x","").replace(" ","").upper()
+    hexstring = code.replace("0x","").replace(" ","").replace(",","").upper()
     if re.match("^[0-9A-F]+$", hexstring) and len(hexstring) % 4 == 0:
         hexarray = [hexstring[i:i+4] for i in range(0, len(hexstring), 4)]
         f.prontohex = " ".join(hexarray)
         sendhexstring = ""
         for s in hexarray:
             sendhexstring += str(int(s, 16)) + ","
-        f.sendhex = sendhexstring[:-2]
+        f.sendhex = sendhexstring[:-1]
         if existing_id == -1:
             f.device = d
         f.save()
