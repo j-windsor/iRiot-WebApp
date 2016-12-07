@@ -50,10 +50,15 @@ def make_function(request, name, code, existing_id, d=None):
     if re.match("^[0-9A-F]+$", hexstring) and len(hexstring) % 4 == 0:
         hexarray = [hexstring[i:i+4] for i in range(0, len(hexstring), 4)]
         f.prontohex = " ".join(hexarray)
-        sendhexstring = ""
+        unique_numbers = []
+        letter_string = ""
         for s in hexarray:
-            sendhexstring += str(int(s, 16)) + ","
-        f.sendhex = sendhexstring[:-1]
+            number = str(int(s, 16))
+            if number not in unique_numbers:
+                unique_numbers.append(number)
+            letter_string += chr(ord('a') + unique_numbers.index(number))
+        f.sendhex = str(len(unique_numbers)) + "," + ",".join(unique_numbers) + "," + letter_string
+
         if existing_id == -1:
             f.device = d
         f.save()
@@ -90,7 +95,7 @@ def remove_device(request, device_id, room_id):
 def send_function(request, function_id):
     client = boto3.client('iot-data', region_name='us-east-1')
     func = Function.objects.get(id=function_id)
-    payload = {"state":{"desired":{"prontohex": func.sendhex+"d"+str(randint(1,99))}}}
+    payload = {"state":{"desired":{"p": func.sendhex+"?"+str(randint(1,99))}}}
     if func.device.room.owner != request.user:
         HttpResponse("f")
     try:
